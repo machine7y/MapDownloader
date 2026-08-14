@@ -1,6 +1,5 @@
-package machine7y.mapdownloader.ui.theme
+package machine7y.mapdownloader.presentation.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

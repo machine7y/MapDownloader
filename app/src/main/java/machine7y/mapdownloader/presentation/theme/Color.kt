@@ -1,4 +1,4 @@
-package machine7y.mapdownloader.ui.theme
+package machine7y.mapdownloader.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
