@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">MapDownloader</string>
+
+    <string name="countryList_title">Download Maps</string>
+    <string name="countryScreen_descriptionBack">Назад</string>
 </resources>
