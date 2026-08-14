@@ -18,11 +18,16 @@ import machine7y.mapdownloader.presentation.component.StatusBarBackground
 import machine7y.mapdownloader.presentation.theme.OrangeLight
 import machine7y.mapdownloader.presentation.theme.White
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CountryScreen(
     onBackClicked: () -> Unit,
 ) {
+    CountryContent(onBackClicked)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CountryContent(onBackClicked: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(

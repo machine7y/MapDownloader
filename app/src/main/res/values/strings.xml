@@ -2,5 +2,8 @@
     <string name="app_name">MapDownloader</string>
 
     <string name="countryList_title">Download Maps</string>
+    <string name="countryList_deviceMemoryTitle">Device memory</string>
+    <string name="countryList_deviceMemoryFreeLabel">Free %1$.1f Gb</string>
+
     <string name="countryScreen_descriptionBack">Назад</string>
 </resources>
