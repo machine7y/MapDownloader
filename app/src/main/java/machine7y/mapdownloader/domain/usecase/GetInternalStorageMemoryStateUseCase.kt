@@ -5,7 +5,7 @@ import machine7y.mapdownloader.domain.entity.Memory
 import machine7y.mapdownloader.domain.source.InternalMemorySource
 import javax.inject.Inject
 
-class GetInternalStorageMemoryState @Inject constructor(
+class GetInternalStorageMemoryStateUseCase @Inject constructor(
     private val internalMemorySource: InternalMemorySource,
 ) : BaseNoParamsUseCase<Memory>() {
 

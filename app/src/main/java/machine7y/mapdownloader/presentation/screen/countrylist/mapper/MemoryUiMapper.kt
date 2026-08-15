@@ -1,4 +1,4 @@
-package machine7y.mapdownloader.presentation.mapper
+package machine7y.mapdownloader.presentation.screen.countrylist.mapper
 
 import machine7y.mapdownloader.domain.entity.Memory
 import machine7y.mapdownloader.presentation.entity.MemoryUi

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import machine7y.mapdownloader.presentation.theme.Black
 import machine7y.mapdownloader.presentation.theme.Gray2
 import machine7y.mapdownloader.presentation.theme.OrangeLight
+import machine7y.mapdownloader.presentation.theme.White
 
 @Composable
 fun MemoryIndicator(
@@ -29,6 +30,7 @@ fun MemoryIndicator(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .background(White),
     ) {
         Row(
             modifier = Modifier
