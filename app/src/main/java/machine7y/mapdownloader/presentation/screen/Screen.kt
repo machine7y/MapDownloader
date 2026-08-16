@@ -4,5 +4,7 @@ sealed interface Screen {
 
     data object CountryList: Screen
 
-    data object Country: Screen
+    data class Country(
+        val localRegionId: Int,
+    ): Screen
 }

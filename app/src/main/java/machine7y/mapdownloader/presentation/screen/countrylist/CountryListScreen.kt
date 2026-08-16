@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
@@ -40,6 +40,7 @@ import machine7y.mapdownloader.presentation.entity.MemoryUi
 import machine7y.mapdownloader.presentation.entity.RegionUiItem
 import machine7y.mapdownloader.presentation.entity.RegionUiItem.ContinentUiItem
 import machine7y.mapdownloader.presentation.entity.RegionUiItem.CountryUiItem
+import machine7y.mapdownloader.presentation.modifier.bottomShadow
 import machine7y.mapdownloader.presentation.modifier.topShadow
 import machine7y.mapdownloader.presentation.theme.Black
 import machine7y.mapdownloader.presentation.theme.Gray2
@@ -48,20 +49,20 @@ import machine7y.mapdownloader.presentation.theme.White
 
 @Composable
 fun CountryListScreen(
-    onClicked: () -> Unit,
+    onCountryClicked: (localRegionId: Int) -> Unit,
 ) {
     val viewModel = hiltViewModel<CountryListViewModel>()
     val state by viewModel.stateFlow.collectAsState()
 
     CountryListContent(
         state = state,
-        onClicked = onClicked,
+        onCountryClicked = onCountryClicked,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CountryListContent(state: CountryListState, onClicked: () -> Unit) {
+private fun CountryListContent(state: CountryListState, onCountryClicked: (localRegionId: Int) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -78,10 +79,6 @@ private fun CountryListContent(state: CountryListState, onClicked: () -> Unit) {
                 ),
             )
         },
-        modifier = Modifier
-            .clickable(
-                onClick = onClicked,
-            )
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -94,32 +91,37 @@ private fun CountryListContent(state: CountryListState, onClicked: () -> Unit) {
                 freeSpaceLabel = stringResource(R.string.countryList_deviceMemoryFreeLabel, state.memory.freeGb),
                 usedFraction = state.memory.usedFraction,
                 modifier = Modifier
-                    .shadow(elevation = 4.dp)
+                    .shadow(elevation = 4.dp),
             )
             Spacer(
                 modifier = Modifier
-                    .height(24.dp)
+                    .height(24.dp),
             )
-            RegionList(state.regionList)
+            RegionList(state.regionList, onCountryClicked)
         }
     }
     StatusBarBackground()
 }
 
 @Composable
-private fun RegionList(itemList: List<RegionUiItem>) {
+private fun RegionList(itemList: List<RegionUiItem>, onCountryClicked: (localRegionId: Int) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .topShadow(2.dp)
+            .bottomShadow(4.dp)
     ) {
-        items(
+        itemsIndexed(
             items = itemList,
-            key = { it.id },
-            contentType = { it::class },
-        ) { item ->
+            key = { _, item -> item.localRegionId },
+            contentType = { _, item -> item::class },
+        ) { index, item ->
             when (item) {
                 is ContinentUiItem -> ContinentItem(item)
-                is CountryUiItem -> CountryItem(item)
+                is CountryUiItem -> CountryItem(
+                    item = item,
+                    isLast = index == itemList.lastIndex,
+                    onCountryClicked = onCountryClicked,
+                )
             }
         }
     }
@@ -146,12 +148,13 @@ private fun ContinentItem(item: ContinentUiItem) {
 }
 
 @Composable
-private fun CountryItem(item: CountryUiItem) {
+private fun CountryItem(item: CountryUiItem, isLast: Boolean, onCountryClicked: (localRegionId: Int) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(White),
+            .background(White)
+            .clickable { onCountryClicked(item.localRegionId) },
     ) {
         Image(
             painter = painterResource(R.drawable.img_map),
@@ -184,10 +187,12 @@ private fun CountryItem(item: CountryUiItem) {
                         .padding(16.dp),
                 )
             }
-            HorizontalDivider(
-                thickness = 1.dp,
-                color = Gray2,
-            )
+            if (!isLast) {
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = Gray2,
+                )
+            }
         }
     }
 }
@@ -202,13 +207,13 @@ fun Preview() {
                 usedFraction = 0.6f,
             ),
             regionList = listOf(
-                ContinentUiItem(id = 1, name = "Europe"),
-                CountryUiItem(id = 2, name = "Ukraine"),
-                CountryUiItem(id = 3, name = "Poland"),
-                ContinentUiItem(id = 4, name = "Asia"),
-                CountryUiItem(id = 5, name = "Japan"),
+                ContinentUiItem(localRegionId = 1, name = "Europe"),
+                CountryUiItem(localRegionId = 2, name = "Ukraine"),
+                CountryUiItem(localRegionId = 3, name = "Poland"),
+                ContinentUiItem(localRegionId = 4, name = "Asia"),
+                CountryUiItem(localRegionId = 5, name = "Japan"),
             ),
         ),
-        onClicked = { },
+        onCountryClicked = { },
     )
 }

@@ -21,11 +21,14 @@ fun MainScreen() {
         entryProvider = entryProvider {
             entry<CountryList> {
                 CountryListScreen(
-                    onClicked = { backStack.add(Country) },
+                    onCountryClicked = { localRegionId ->
+                        backStack.add(Country(localRegionId))
+                    },
                 )
             }
-            entry<Country> {
+            entry<Country> { key ->
                 CountryScreen(
+                    localRegionId = key.localRegionId,
                     onBackClicked = onBackClicked,
                 )
             }

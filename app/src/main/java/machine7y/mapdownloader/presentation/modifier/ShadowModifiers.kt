@@ -23,3 +23,19 @@ fun Modifier.topShadow(
         size = Size(size.width, h)
     )
 }
+
+fun Modifier.bottomShadow(
+    height: Dp,
+    color: Color = Color.Black.copy(alpha = 0.1f)
+) = this.drawBehind {
+    val h = height.toPx()
+    drawRect(
+        brush = Brush.verticalGradient(
+            colors = listOf(color, Color.Transparent),
+            startY = size.height,
+            endY = size.height + h
+        ),
+        topLeft = Offset(0f, size.height),
+        size = Size(size.width, h)
+    )
+}
