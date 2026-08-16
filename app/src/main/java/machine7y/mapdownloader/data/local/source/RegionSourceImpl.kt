@@ -19,6 +19,17 @@ private const val ATTR_NAME = "name"
 private const val ATTR_TYPE = "type"
 private const val ATTR_MAP = "map"
 private const val VALUE_YES = "yes"
+private const val VALUE_MAP = "map"
+private const val ATTR_DOWNLOAD_PREFIX = "download_prefix"
+private const val ATTR_DOWNLOAD_SUFFIX = "download_suffix"
+private const val ATTR_INNER_DOWNLOAD_PREFIX = "inner_download_prefix"
+private const val ATTR_INNER_DOWNLOAD_SUFFIX = "inner_download_suffix"
+private const val NAME_PLACEHOLDER = "\$name"
+
+private val ROOT_DOWNLOAD_NAME_CONTEXT = DownloadNameContext(
+    innerPrefix = "",
+    innerSuffix = "",
+)
 
 @Singleton
 class RegionSourceImpl @Inject constructor(
@@ -57,33 +68,65 @@ class RegionSourceImpl @Inject constructor(
             parseChildren(parser)
         }
 
-    private fun parseChildren(parser: XmlPullParser): List<RegionNode> {
+    private fun parseChildren(
+        parser: XmlPullParser,
+        downloadContext: DownloadNameContext = ROOT_DOWNLOAD_NAME_CONTEXT
+    ): List<RegionNode> {
         val children = mutableListOf<RegionNode>()
         var eventType = parser.eventType
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG && parser.name == TAG_REGION) {
-                children.add(parseNode(parser))
+                children.add(parseNode(parser, downloadContext))
             }
             eventType = parser.next()
         }
         return children
     }
 
-    private fun parseNode(parser: XmlPullParser): RegionNode {
+    private fun parseNode(parser: XmlPullParser, downloadContext: DownloadNameContext): RegionNode {
         val localRegionId = nextLocalRegionId++
         val name = parser.getAttributeValue(null, ATTR_NAME).orEmpty()
         val type = parser.getAttributeValue(null, ATTR_TYPE).orEmpty()
-        val isMap = parser.getAttributeValue(null, ATTR_MAP) == VALUE_YES
+        val isMap = parser.getAttributeValue(null, ATTR_MAP) == VALUE_YES || type == VALUE_MAP
+
+        val prefix = parser.getAttributeValue(null, ATTR_DOWNLOAD_PREFIX) ?: downloadContext.innerPrefix
+        val suffix = parser.getAttributeValue(null, ATTR_DOWNLOAD_SUFFIX) ?: downloadContext.innerSuffix
+
+        val innerPrefix = (parser.getAttributeValue(null, ATTR_INNER_DOWNLOAD_PREFIX) ?: prefix)
+            .replace(NAME_PLACEHOLDER, name)
+        val innerSuffix = (parser.getAttributeValue(null, ATTR_INNER_DOWNLOAD_SUFFIX) ?: suffix)
+            .replace(NAME_PLACEHOLDER, name)
+
+        val downloadName = listOf(prefix, name, suffix)
+            .filter { it.isNotEmpty() }
+            .joinToString("_")
+
+        val childDownloadNameContext = DownloadNameContext(
+            innerPrefix = innerPrefix,
+            innerSuffix = innerSuffix,
+        )
 
         val children = mutableListOf<RegionNode>()
         var eventType = parser.next()
         while (!(eventType == XmlPullParser.END_TAG && parser.name == TAG_REGION)) {
             if (eventType == XmlPullParser.START_TAG && parser.name == TAG_REGION) {
-                children.add(parseNode(parser))
+                children.add(parseNode(parser, childDownloadNameContext))
             }
             eventType = parser.next()
         }
 
-        return RegionNode(localRegionId = localRegionId, name = name, type = type, isMap = isMap, children = children)
+        return RegionNode(
+            localRegionId = localRegionId,
+            name = name,
+            type = type,
+            isMap = isMap,
+            downloadName = downloadName,
+            children = children,
+        )
     }
 }
+
+private data class DownloadNameContext(
+    val innerPrefix: String,
+    val innerSuffix: String,
+)

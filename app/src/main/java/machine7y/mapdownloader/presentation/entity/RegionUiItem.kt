@@ -12,6 +12,7 @@ sealed interface RegionUiItem {
     data class CountryUiItem(
         override val localRegionId: Int,
         val name: String,
+        val downloadName: String,
         val isMap: Boolean,
         val hasChildren: Boolean,
     ) : RegionUiItem

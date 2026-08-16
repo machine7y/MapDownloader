@@ -8,6 +8,9 @@ sealed interface CountryEvent : BaseEvent {
 
     data class OnRegionClicked(
         val localRegionId: Int,
+        val name: String,
+        val downloadName: String,
+        val isMap: Boolean,
         val hasChildren: Boolean,
     ) : CountryEvent
 }

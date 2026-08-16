@@ -5,4 +5,6 @@ import machine7y.mapdownloader.domain.entity.Memory
 interface InternalMemorySource {
 
     suspend fun getMemory(): Memory
+
+    suspend fun clearCache()
 }

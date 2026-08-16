@@ -27,6 +27,22 @@ class InternalMemorySourceImpl @Inject constructor(
         buildMemory(totalBytes = totalBytes, freeBytes = freeBytes)
     }
 
+    override suspend fun clearCache(): Unit = withContext(Dispatchers.IO) {
+        val sm = storageManager
+        if (sm == null || !atLeastO()) {
+            context.cacheDir?.listFiles()?.forEach { it.deleteRecursively() }
+            return@withContext
+        }
+        try {
+            val uuid = sm.getUuidForPath(context.filesDir)
+            val allocatableBytes = sm.getAllocatableBytes(uuid)
+            if (allocatableBytes > 0) {
+                sm.allocateBytes(uuid, allocatableBytes)
+            }
+        } catch (_: IOException) {
+        }
+    }
+
     private fun allocatableBytes(dir: File): Long? = if (atLeastO()) {
         try {
             storageManager?.getAllocatableBytes(storageManager.getUuidForPath(dir))
@@ -49,20 +65,4 @@ class InternalMemorySourceImpl @Inject constructor(
             usedFraction = usedFraction,
         )
     }
-
-    // TODO handle
-//    suspend fun reserve(requiredBytes: Long): Boolean = withContext(Dispatchers.IO) {
-//        val sm = storageManager
-//        if (sm == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-//            return@withContext targetDir.usableSpace >= requiredBytes
-//        }
-//        try {
-//            val uuid = sm.getUuidForPath(targetDir)
-//            if (sm.getAllocatableBytes(uuid) < requiredBytes) return@withContext false
-//            sm.allocateBytes(uuid, requiredBytes)   // чистит чужие кэши и резервирует
-//            true
-//        } catch (e: IOException) {
-//            false
-//        }
-//    }
 }

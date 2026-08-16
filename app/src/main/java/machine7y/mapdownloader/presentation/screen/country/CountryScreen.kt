@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import machine7y.mapdownloader.R
 import machine7y.mapdownloader.presentation.component.StatusBarBackground
-import machine7y.mapdownloader.presentation.entity.RegionUiItem
+import machine7y.mapdownloader.presentation.entity.RegionUiItem.CountryUiItem
 import machine7y.mapdownloader.presentation.modifier.bottomShadow
 import machine7y.mapdownloader.presentation.modifier.topShadow
 import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnBackClicked
@@ -75,8 +75,16 @@ fun CountryScreen(
     CountryContent(
         state = state,
         onBackClicked = { viewModel.onEvent(OnBackClicked) },
-        onRegionClicked = { localId, hasChildren ->
-            viewModel.onEvent(OnRegionClicked(localId, hasChildren))
+        onRegionClicked = { item ->
+            viewModel.onEvent(
+                OnRegionClicked(
+                    localRegionId = item.localRegionId,
+                    name = item.name,
+                    downloadName = item.downloadName,
+                    isMap = item.isMap,
+                    hasChildren = item.hasChildren,
+                )
+            )
         },
     )
 }
@@ -86,7 +94,7 @@ fun CountryScreen(
 private fun CountryContent(
     state: CountryState,
     onBackClicked: () -> Unit,
-    onRegionClicked: (localRegionId: Int, hasChildren: Boolean) -> Unit,
+    onRegionClicked: (item: CountryUiItem) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -129,8 +137,8 @@ private fun CountryContent(
 
 @Composable
 private fun RegionList(
-    itemList: List<RegionUiItem.CountryUiItem>,
-    onRegionClicked: (localRegionId: Int, hasChildren: Boolean) -> Unit,
+    itemList: List<CountryUiItem>,
+    onRegionClicked: (item: CountryUiItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -154,16 +162,16 @@ private fun RegionList(
 
 @Composable
 private fun MapItem(
-    item: RegionUiItem.CountryUiItem,
+    item: CountryUiItem,
     isLast: Boolean,
-    onRegionClicked: (localRegionId: Int, hasChildren: Boolean) -> Unit,
+    onRegionClicked: (item: CountryUiItem) -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
             .background(White)
-            .clickable { onRegionClicked(item.localRegionId, item.hasChildren) },
+            .clickable { onRegionClicked(item) },
     ) {
         Image(
             painter = painterResource(R.drawable.img_map),
@@ -222,27 +230,30 @@ fun Preview() {
         state = CountryState(
             name = "Germany",
             regionList = listOf(
-                RegionUiItem.CountryUiItem(
+                CountryUiItem(
                     localRegionId = 0,
                     name = "Bavaria",
+                    downloadName = "bavaria_germany",
                     isMap = false,
                     hasChildren = true,
                 ),
-                RegionUiItem.CountryUiItem(
+                CountryUiItem(
                     localRegionId = 1,
                     name = "Berlin",
+                    downloadName = "berlin_germany",
                     isMap = true,
                     hasChildren = false,
                 ),
-                RegionUiItem.CountryUiItem(
+                CountryUiItem(
                     localRegionId = 2,
                     name = "Hamburg",
+                    downloadName = "hamburg_germany",
                     isMap = false,
                     hasChildren = false,
                 ),
             ),
         ),
         onBackClicked = { },
-        onRegionClicked = { _, _ -> },
+        onRegionClicked = { },
     )
 }

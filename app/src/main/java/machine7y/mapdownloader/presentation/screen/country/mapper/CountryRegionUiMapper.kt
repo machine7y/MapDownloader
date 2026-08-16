@@ -11,6 +11,7 @@ class CountryRegionUiMapper @Inject constructor() {
             RegionUiItem.CountryUiItem(
                 localRegionId = child.localRegionId,
                 name = child.name,
+                downloadName = child.downloadName,
                 isMap = child.isMap,
                 hasChildren = child.children.isNotEmpty(),
             )

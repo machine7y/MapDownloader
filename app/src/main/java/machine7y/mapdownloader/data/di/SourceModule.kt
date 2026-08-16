@@ -6,7 +6,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import machine7y.mapdownloader.data.local.source.InternalMemorySourceImpl
 import machine7y.mapdownloader.data.local.source.RegionSourceImpl
+import machine7y.mapdownloader.data.remote.source.MapDownloadSourceImpl
 import machine7y.mapdownloader.domain.source.InternalMemorySource
+import machine7y.mapdownloader.domain.source.MapDownloadSource
 import machine7y.mapdownloader.domain.source.RegionSource
 
 @Module
@@ -18,4 +20,7 @@ abstract class SourceModule {
 
     @Binds
     abstract fun bindRegionSource(source: RegionSourceImpl): RegionSource
+
+    @Binds
+    abstract fun bindMapDownloadSource(source: MapDownloadSourceImpl): MapDownloadSource
 }

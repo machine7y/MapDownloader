@@ -1,6 +1,5 @@
 package machine7y.mapdownloader.presentation.screen
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,8 +16,6 @@ import machine7y.mapdownloader.presentation.screen.countrylist.CountryListScreen
 fun MainScreen(router: Router) {
     val backStack = rememberSaveable(saver = ScreenListSaver) { mutableStateListOf(CountryList) }
     router.attach(backStack)
-
-    BackHandler(enabled = backStack.size > 1) { router.pop() }
 
     NavDisplay(
         backStack = backStack,

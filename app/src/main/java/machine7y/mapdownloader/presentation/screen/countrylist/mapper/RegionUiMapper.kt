@@ -35,6 +35,7 @@ class RegionUiMapper @Inject constructor() {
                         CountryUiItem(
                             localRegionId = node.localRegionId,
                             name = name,
+                            downloadName = node.downloadName,
                             isMap = node.isMap,
                             hasChildren = node.children.isNotEmpty(),
                         )

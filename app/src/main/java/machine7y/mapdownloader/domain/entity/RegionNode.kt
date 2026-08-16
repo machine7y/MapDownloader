@@ -5,5 +5,6 @@ data class RegionNode(
     val name: String,
     val type: String,
     val isMap: Boolean,
+    val downloadName: String,
     val children: List<RegionNode>,
 )
