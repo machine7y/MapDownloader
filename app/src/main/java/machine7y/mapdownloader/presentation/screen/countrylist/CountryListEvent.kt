@@ -4,5 +4,8 @@ import machine7y.mapdownloader.presentation.base.mvvm.BaseEvent
 
 sealed interface CountryListEvent : BaseEvent {
 
-    data object OnCountryClicked : CountryListEvent
+    data class OnCountryClicked(
+        val localRegionId: Int,
+        val hasChildren: Boolean,
+    ) : CountryListEvent
 }

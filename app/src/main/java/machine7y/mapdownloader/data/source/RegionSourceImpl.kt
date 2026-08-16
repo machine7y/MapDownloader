@@ -19,10 +19,6 @@ private const val ATTR_NAME = "name"
 private const val ATTR_TYPE = "type"
 private const val ATTR_MAP = "map"
 private const val VALUE_YES = "yes"
-private const val TYPE_CONTINENT = "continent"
-
-private const val DEPTH_CONTINENT = 0
-private const val DEPTH_COUNTRY = 1
 
 @Singleton
 class RegionSourceImpl @Inject constructor(
@@ -31,6 +27,7 @@ class RegionSourceImpl @Inject constructor(
 
     private val mutex = Mutex()
     private var cachedRegionList: List<RegionNode>? = null
+    private var nextLocalRegionId = 0
 
     override suspend fun getRegionList(): List<RegionNode> {
         cachedRegionList?.let { return it }
@@ -40,26 +37,21 @@ class RegionSourceImpl @Inject constructor(
     }
 
     override suspend fun getRegion(localRegionId: Int): RegionNode {
-        var index = 0
-        fun find(nodes: List<RegionNode>, depth: Int): RegionNode? {
+        fun find(nodes: List<RegionNode>): RegionNode? {
             for (node in nodes) {
-                val isFlattenedItem = node.name.isNotEmpty() &&
-                    (depth == DEPTH_CONTINENT && node.type == TYPE_CONTINENT || depth == DEPTH_COUNTRY)
-                if (isFlattenedItem) {
-                    if (index == localRegionId) return node
-                    index++
-                }
-                find(node.children, depth + 1)?.let { return it }
+                if (node.localRegionId == localRegionId) return node
+                find(node.children)?.let { return it }
             }
             return null
         }
 
         //TODO handle error
-        return find(getRegionList(), DEPTH_CONTINENT) ?: error("Region with localRegionId=$localRegionId not found")
+        return find(getRegionList()) ?: error("Region with localRegionId=$localRegionId not found")
     }
 
     private fun parseRegionList(): List<RegionNode> =
         context.assets.open(RESOURCE_FILE).use { input ->
+            nextLocalRegionId = 0
             val parser = Xml.newPullParser()
             parser.setInput(input, ENCODING)
             parseChildren(parser)
@@ -78,6 +70,7 @@ class RegionSourceImpl @Inject constructor(
     }
 
     private fun parseNode(parser: XmlPullParser): RegionNode {
+        val localRegionId = nextLocalRegionId++
         val name = parser.getAttributeValue(null, ATTR_NAME).orEmpty()
         val type = parser.getAttributeValue(null, ATTR_TYPE).orEmpty()
         val isMap = parser.getAttributeValue(null, ATTR_MAP) == VALUE_YES
@@ -91,6 +84,6 @@ class RegionSourceImpl @Inject constructor(
             eventType = parser.next()
         }
 
-        return RegionNode(name = name, type = type, isMap = isMap, children = children)
+        return RegionNode(localRegionId = localRegionId, name = name, type = type, isMap = isMap, children = children)
     }
 }

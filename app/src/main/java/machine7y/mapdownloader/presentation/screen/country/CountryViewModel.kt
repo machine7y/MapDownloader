@@ -6,25 +6,48 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import machine7y.mapdownloader.domain.usecase.GetRegionUseCase
 import machine7y.mapdownloader.domain.usecase.RegionUseCaseParam
 import machine7y.mapdownloader.presentation.base.mvvm.BaseViewModel
+import machine7y.mapdownloader.presentation.navigation.Router
+import machine7y.mapdownloader.presentation.screen.Screen
+import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnRegionClicked
+import machine7y.mapdownloader.presentation.screen.country.CountryLabel.ShowNoNestedRegionsMessage
+import machine7y.mapdownloader.presentation.screen.country.mapper.CountryRegionUiMapper
 
 @HiltViewModel(assistedFactory = CountryViewModelFactory::class)
 class CountryViewModel @AssistedInject constructor(
     @Assisted internalState: CountryInternalState,
     private val getRegionUseCase: GetRegionUseCase,
+    private val countryRegionUiMapper: CountryRegionUiMapper,
+    private val router: Router,
 ) : BaseViewModel<CountryState, CountryInternalState, CountryEvent, CountryLabel>(
     initialState = CountryState(),
     initialInternalState = internalState,
 ) {
     init {
-        loadRegionName()
+        loadRegion()
     }
 
-    private fun loadRegionName() = launch {
-        val name = getRegionUseCase(RegionUseCaseParam(localRegionId = internalState.localRegionId)).name
+    override fun onEvent(event: CountryEvent) {
+        when (event) {
+            CountryEvent.OnBackClicked -> router.pop()
+            is OnRegionClicked -> onRegionClicked(event)
+        }
+    }
+
+    private fun onRegionClicked(event: OnRegionClicked) {
+        if (event.hasChildren) {
+            router.navigate(Screen.Country(event.localRegionId))
+        } else {
+            launch { publishLabel(ShowNoNestedRegionsMessage) }
+        }
+    }
+
+    private fun loadRegion() = launch {
+        val region = getRegionUseCase(RegionUseCaseParam(localRegionId = internalState.localRegionId))
 
         updateUiState {
             copy(
-                name = name,
+                name = region.name,
+                regionList = countryRegionUiMapper.map(region),
             )
         }
     }

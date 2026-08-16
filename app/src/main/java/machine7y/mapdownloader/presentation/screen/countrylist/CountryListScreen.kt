@@ -1,5 +1,6 @@
 package machine7y.mapdownloader.presentation.screen.countrylist
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,18 +15,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,27 +48,43 @@ import machine7y.mapdownloader.presentation.entity.RegionUiItem.ContinentUiItem
 import machine7y.mapdownloader.presentation.entity.RegionUiItem.CountryUiItem
 import machine7y.mapdownloader.presentation.modifier.bottomShadow
 import machine7y.mapdownloader.presentation.modifier.topShadow
+import machine7y.mapdownloader.presentation.screen.countrylist.CountryListEvent.OnCountryClicked
 import machine7y.mapdownloader.presentation.theme.Black
 import machine7y.mapdownloader.presentation.theme.Gray2
+import machine7y.mapdownloader.presentation.theme.Gray4
 import machine7y.mapdownloader.presentation.theme.OrangeLight
 import machine7y.mapdownloader.presentation.theme.White
 
 @Composable
-fun CountryListScreen(
-    onCountryClicked: (localRegionId: Int) -> Unit,
-) {
+fun CountryListScreen() {
     val viewModel = hiltViewModel<CountryListViewModel>()
     val state by viewModel.stateFlow.collectAsState()
+    val context = LocalContext.current
+    val noNestedRegionsToastText = stringResource(R.string.countryList_toastNoNestedRegions)
+
+    LaunchedEffect(Unit) {
+        viewModel.labelFlow.collect { label ->
+            when (label) {
+                CountryListLabel.ShowNoNestedRegionsMessage ->
+                    Toast.makeText(context, noNestedRegionsToastText, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     CountryListContent(
         state = state,
-        onCountryClicked = onCountryClicked,
+        onCountryClicked = { localRegionId, hasChildren ->
+            viewModel.onEvent(OnCountryClicked(localRegionId, hasChildren))
+        },
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CountryListContent(state: CountryListState, onCountryClicked: (localRegionId: Int) -> Unit) {
+private fun CountryListContent(
+    state: CountryListState,
+    onCountryClicked: (localRegionId: Int, hasChildren: Boolean) -> Unit,
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -104,7 +126,10 @@ private fun CountryListContent(state: CountryListState, onCountryClicked: (local
 }
 
 @Composable
-private fun RegionList(itemList: List<RegionUiItem>, onCountryClicked: (localRegionId: Int) -> Unit) {
+private fun RegionList(
+    itemList: List<RegionUiItem>,
+    onCountryClicked: (localRegionId: Int, hasChildren: Boolean) -> Unit,
+) {
     LazyColumn(
         modifier = Modifier
             .topShadow(2.dp)
@@ -148,13 +173,17 @@ private fun ContinentItem(item: ContinentUiItem) {
 }
 
 @Composable
-private fun CountryItem(item: CountryUiItem, isLast: Boolean, onCountryClicked: (localRegionId: Int) -> Unit) {
+private fun CountryItem(
+    item: CountryUiItem,
+    isLast: Boolean,
+    onCountryClicked: (localRegionId: Int, hasChildren: Boolean) -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
             .background(White)
-            .clickable { onCountryClicked(item.localRegionId) },
+            .clickable { onCountryClicked(item.localRegionId, item.hasChildren) },
     ) {
         Image(
             painter = painterResource(R.drawable.img_map),
@@ -180,12 +209,21 @@ private fun CountryItem(item: CountryUiItem, isLast: Boolean, onCountryClicked: 
                     modifier = Modifier
                         .weight(1f),
                 )
-                Image(
-                    painter = painterResource(R.drawable.img_action_import),
-                    contentDescription = stringResource(R.string.countryList_descriptionMap),
-                    modifier = Modifier
-                        .padding(16.dp),
-                )
+                when {
+                    item.isMap -> Image(
+                        painter = painterResource(R.drawable.img_action_import),
+                        contentDescription = stringResource(R.string.countryList_descriptionMap),
+                        modifier = Modifier
+                            .padding(16.dp),
+                    )
+                    item.hasChildren -> Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = Gray4,
+                        modifier = Modifier
+                            .padding(16.dp),
+                    )
+                }
             }
             if (!isLast) {
                 HorizontalDivider(
@@ -208,12 +246,12 @@ fun Preview() {
             ),
             regionList = listOf(
                 ContinentUiItem(localRegionId = 1, name = "Europe"),
-                CountryUiItem(localRegionId = 2, name = "Ukraine"),
-                CountryUiItem(localRegionId = 3, name = "Poland"),
+                CountryUiItem(localRegionId = 2, name = "Ukraine", isMap = false, hasChildren = true),
+                CountryUiItem(localRegionId = 3, name = "Poland", isMap = true, hasChildren = false),
                 ContinentUiItem(localRegionId = 4, name = "Asia"),
-                CountryUiItem(localRegionId = 5, name = "Japan"),
+                CountryUiItem(localRegionId = 5, name = "Japan", isMap = false, hasChildren = false),
             ),
         ),
-        onCountryClicked = { },
+        onCountryClicked = { _, _ -> },
     )
 }

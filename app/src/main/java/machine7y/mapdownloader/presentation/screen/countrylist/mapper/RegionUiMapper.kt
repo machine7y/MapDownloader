@@ -27,14 +27,16 @@ class RegionUiMapper @Inject constructor() {
                 when {
                     depth == DEPTH_CONTINENT && node.type == TYPE_CONTINENT -> items.add(
                         ContinentUiItem(
-                            localRegionId = items.size,
+                            localRegionId = node.localRegionId,
                             name = name,
                         )
                     )
                     depth == DEPTH_COUNTRY -> items.add(
                         CountryUiItem(
-                            localRegionId = items.size,
+                            localRegionId = node.localRegionId,
                             name = name,
+                            isMap = node.isMap,
+                            hasChildren = node.children.isNotEmpty(),
                         )
                     )
                 }

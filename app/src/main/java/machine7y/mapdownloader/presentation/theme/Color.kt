@@ -9,10 +9,12 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
+// TODO Refactor
 val OrangeDark = Color(0xFFE68200)
 val OrangeLight = Color(0xFFFF8800)
 val Gray = Color(0xFFEAEAEA)
 val Gray2 = Color(0xFFF0F0F0)
 val Gray3 = Color(0xFFE1E1E1)
+val Gray4 = Color(0xFFB5B5B5)
 val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
