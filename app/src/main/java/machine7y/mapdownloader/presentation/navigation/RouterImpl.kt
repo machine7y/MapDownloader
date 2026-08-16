@@ -1,15 +1,20 @@
 package machine7y.mapdownloader.presentation.navigation
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import machine7y.mapdownloader.presentation.screen.Screen
 import machine7y.mapdownloader.presentation.screen.Screen.CountryList
 import javax.inject.Inject
 
 class RouterImpl @Inject constructor() : Router {
 
-    private val stack = mutableStateListOf<Screen>(CountryList)
+    private var stack: SnapshotStateList<Screen> = mutableStateListOf(CountryList)
 
     override val backStack: List<Screen> get() = stack
+
+    override fun attach(backStack: SnapshotStateList<Screen>) {
+        stack = backStack
+    }
 
     override fun navigate(screen: Screen) {
         if (stack.lastOrNull() == screen) return

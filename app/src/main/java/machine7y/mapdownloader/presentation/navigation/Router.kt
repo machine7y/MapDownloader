@@ -1,10 +1,13 @@
 package machine7y.mapdownloader.presentation.navigation
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import machine7y.mapdownloader.presentation.screen.Screen
 
 interface Router {
 
     val backStack: List<Screen>
+
+    fun attach(backStack: SnapshotStateList<Screen>)
 
     fun navigate(screen: Screen)
 

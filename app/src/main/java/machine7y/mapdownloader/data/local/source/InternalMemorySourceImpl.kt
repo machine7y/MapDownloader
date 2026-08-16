@@ -1,4 +1,4 @@
-package machine7y.mapdownloader.data.source
+package machine7y.mapdownloader.data.local.source
 
 import android.content.Context
 import android.os.storage.StorageManager
