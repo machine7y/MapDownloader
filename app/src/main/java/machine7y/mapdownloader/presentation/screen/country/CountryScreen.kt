@@ -1,5 +1,6 @@
 package machine7y.mapdownloader.presentation.screen.country
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import machine7y.mapdownloader.R
+import machine7y.mapdownloader.domain.entity.DownloadState
 import machine7y.mapdownloader.presentation.component.StatusBarBackground
 import machine7y.mapdownloader.presentation.entity.RegionUiItem.CountryUiItem
 import machine7y.mapdownloader.presentation.modifier.bottomShadow
@@ -126,6 +128,7 @@ private fun CountryContent(
     ) { innerPadding ->
         RegionList(
             itemList = state.regionList,
+            downloadStates = state.downloadStates,
             onRegionClicked = onRegionClicked,
             modifier = Modifier
                 .padding(innerPadding)
@@ -138,9 +141,11 @@ private fun CountryContent(
 @Composable
 private fun RegionList(
     itemList: List<CountryUiItem>,
+    downloadStates: Map<String, DownloadState>,
     onRegionClicked: (item: CountryUiItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    Log.d("qweqwe", "RegionList: ${downloadStates}")
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -153,6 +158,7 @@ private fun RegionList(
         ) { index, item ->
             MapItem(
                 item = item,
+                downloadState = downloadStates[item.downloadName],
                 isLast = index == itemList.lastIndex,
                 onRegionClicked = onRegionClicked,
             )
@@ -163,6 +169,7 @@ private fun RegionList(
 @Composable
 private fun MapItem(
     item: CountryUiItem,
+    downloadState: DownloadState?,
     isLast: Boolean,
     onRegionClicked: (item: CountryUiItem) -> Unit,
 ) {
@@ -190,7 +197,7 @@ private fun MapItem(
                     .weight(1f)
             ) {
                 Text(
-                    text = item.name,
+                    text = mapItemName(item.name, downloadState),
                     fontSize = 16.sp,
                     letterSpacing = 0.02.em,
                     color = Black,
@@ -221,6 +228,12 @@ private fun MapItem(
             }
         }
     }
+}
+
+@Composable
+private fun mapItemName(name: String, downloadState: DownloadState?): String {
+    val fraction = (downloadState as? DownloadState.InProgress)?.fraction ?: return name
+    return stringResource(R.string.countryScreen_mapNameWithProgress, name, (fraction * 100).toInt())
 }
 
 @Preview(showBackground = true)
