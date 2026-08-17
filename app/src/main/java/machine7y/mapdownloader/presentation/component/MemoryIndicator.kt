@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import machine7y.mapdownloader.presentation.theme.Black
-import machine7y.mapdownloader.presentation.theme.Gray2
+import machine7y.mapdownloader.presentation.theme.Gray
 import machine7y.mapdownloader.presentation.theme.OrangeLight
 import machine7y.mapdownloader.presentation.theme.White
 
@@ -63,7 +63,7 @@ fun MemoryIndicator(
                     bottom = 12.dp,
                 )
                 .height(16.dp)
-                .background(Gray2),
+                .background(Gray),
         ) {
             Box(
                 modifier = Modifier

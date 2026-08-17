@@ -56,7 +56,6 @@ class RegionSourceImpl @Inject constructor(
             return null
         }
 
-        //TODO handle error
         return find(getRegionList()) ?: error("Region with localRegionId=$localRegionId not found")
     }
 

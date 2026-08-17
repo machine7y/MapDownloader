@@ -50,8 +50,8 @@ import machine7y.mapdownloader.presentation.modifier.bottomShadow
 import machine7y.mapdownloader.presentation.modifier.topShadow
 import machine7y.mapdownloader.presentation.screen.countrylist.CountryListEvent.OnCountryClicked
 import machine7y.mapdownloader.presentation.theme.Black
-import machine7y.mapdownloader.presentation.theme.Gray2
-import machine7y.mapdownloader.presentation.theme.Gray4
+import machine7y.mapdownloader.presentation.theme.Gray
+import machine7y.mapdownloader.presentation.theme.Gray3
 import machine7y.mapdownloader.presentation.theme.OrangeLight
 import machine7y.mapdownloader.presentation.theme.White
 
@@ -106,7 +106,7 @@ private fun CountryListContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Gray2),
+                .background(Gray),
         ) {
             MemoryIndicator(
                 title = stringResource(R.string.countryList_deviceMemoryTitle),
@@ -219,7 +219,7 @@ private fun CountryItem(
                     item.hasChildren -> Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = null,
-                        tint = Gray4,
+                        tint = Gray3,
                         modifier = Modifier
                             .padding(16.dp),
                     )
@@ -228,7 +228,7 @@ private fun CountryItem(
             if (!isLast) {
                 HorizontalDivider(
                     thickness = 1.dp,
-                    color = Gray2,
+                    color = Gray,
                 )
             }
         }

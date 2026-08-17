@@ -5,4 +5,6 @@ import machine7y.mapdownloader.presentation.base.mvvm.BaseLabel
 sealed interface CountryLabel : BaseLabel {
 
     data object ShowNoNestedRegionsMessage : CountryLabel
+
+    data object ShowRegionNotFound : CountryLabel
 }

@@ -49,8 +49,7 @@ class DownloadEngine @Inject constructor(
 
         try {
             val responseBody = osmandApi.downloadMap(getTargetFileName(fileId))
-            //TODO coerceAtLeast???
-            val total = responseBody.contentLength().coerceAtLeast(0L)
+            val total = responseBody.contentLength()
 
             responseBody.byteStream().use { input ->
                 partFile.outputStream().use { output ->

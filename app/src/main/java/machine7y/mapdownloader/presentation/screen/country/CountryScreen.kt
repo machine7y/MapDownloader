@@ -48,8 +48,8 @@ import machine7y.mapdownloader.presentation.modifier.topShadow
 import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnBackClicked
 import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnItemClicked
 import machine7y.mapdownloader.presentation.theme.Black
-import machine7y.mapdownloader.presentation.theme.Gray2
-import machine7y.mapdownloader.presentation.theme.Gray4
+import machine7y.mapdownloader.presentation.theme.Gray
+import machine7y.mapdownloader.presentation.theme.Gray3
 import machine7y.mapdownloader.presentation.theme.OrangeLight
 import machine7y.mapdownloader.presentation.theme.Red
 import machine7y.mapdownloader.presentation.theme.White
@@ -65,12 +65,15 @@ fun CountryScreen(
     val state by viewModel.stateFlow.collectAsState()
     val context = LocalContext.current
     val noNestedRegionsToastText = stringResource(R.string.countryList_toastNoNestedRegions)
+    val regionNotFoundToastText = stringResource(R.string.countryList_regionNotFound)
 
     LaunchedEffect(Unit) {
         viewModel.labelFlow.collect { label ->
             when (label) {
                 CountryLabel.ShowNoNestedRegionsMessage ->
                     Toast.makeText(context, noNestedRegionsToastText, Toast.LENGTH_SHORT).show()
+                CountryLabel.ShowRegionNotFound ->
+                    Toast.makeText(context, regionNotFoundToastText, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -132,7 +135,7 @@ private fun CountryContent(
             onItemClicked = onItemClicked,
             modifier = Modifier
                 .padding(innerPadding)
-                .background(Gray2),
+                .background(Gray),
         )
     }
     StatusBarBackground()
@@ -239,7 +242,7 @@ private fun RegionItem(
                     item.hasChildren -> Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = null,
-                        tint = Gray4,
+                        tint = Gray3,
                         modifier = Modifier
                             .padding(16.dp),
                     )
@@ -248,7 +251,7 @@ private fun RegionItem(
             if (!isLast) {
                 HorizontalDivider(
                     thickness = 1.dp,
-                    color = Gray2,
+                    color = Gray,
                 )
             }
         }

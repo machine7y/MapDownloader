@@ -5,6 +5,7 @@
     <string name="countryList_deviceMemoryTitle">Device memory</string>
     <string name="countryList_deviceMemoryFreeLabel">Free %1$.1f Gb</string>
     <string name="countryList_toastNoNestedRegions">No nested regions</string>
+    <string name="countryList_regionNotFound">Region not found</string>
     <string name="countryList_descriptionMap">map</string>
     <string name="countryList_descriptionImport">import</string>
     <string name="countryList_descriptionRemove">remove</string>

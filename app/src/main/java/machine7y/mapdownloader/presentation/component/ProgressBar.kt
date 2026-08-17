@@ -11,14 +11,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import machine7y.mapdownloader.presentation.theme.Blue
-import machine7y.mapdownloader.presentation.theme.Gray3
+import machine7y.mapdownloader.presentation.theme.Gray2
 
 @Composable
 fun ProgressBar(
     fraction: Float,
     modifier: Modifier = Modifier,
     color: Color = Blue,
-    trackColor: Color = Gray3,
+    trackColor: Color = Gray2,
 ) {
     Box(
         modifier = modifier

@@ -17,6 +17,7 @@ import machine7y.mapdownloader.presentation.navigation.Router
 import machine7y.mapdownloader.presentation.screen.Screen
 import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnItemClicked
 import machine7y.mapdownloader.presentation.screen.country.CountryLabel.ShowNoNestedRegionsMessage
+import machine7y.mapdownloader.presentation.screen.country.CountryLabel.ShowRegionNotFound
 import machine7y.mapdownloader.presentation.screen.country.mapper.CountryRegionUiMapper
 
 @HiltViewModel(assistedFactory = CountryViewModelFactory::class)
@@ -62,14 +63,18 @@ class CountryViewModel @AssistedInject constructor(
     }
 
     private fun loadRegion() = launch {
-        val region = getRegionUseCase(RegionUseCaseParam(localRegionId = internalState.localRegionId))
-        val regionList = countryRegionUiMapper.map(region)
+        try {
+            val region = getRegionUseCase(RegionUseCaseParam(localRegionId = internalState.localRegionId))
+            val regionList = countryRegionUiMapper.map(region)
 
-        updateUiState {
-            copy(
-                name = region.name,
-                regionList = regionList,
-            )
+            updateUiState {
+                copy(
+                    name = region.name,
+                    regionList = regionList,
+                )
+            }
+        } catch (_: IllegalStateException) {
+            publishLabel(ShowRegionNotFound)
         }
     }
 
