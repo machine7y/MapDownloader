@@ -7,4 +7,6 @@ sealed interface CountryLabel : BaseLabel {
     data object ShowNoNestedRegionsMessage : CountryLabel
 
     data object ShowRegionNotFound : CountryLabel
+
+    data object ShowDownloadFailed : CountryLabel
 }

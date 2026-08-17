@@ -3,6 +3,7 @@ package machine7y.mapdownloader.presentation.screen.country
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import machine7y.mapdownloader.domain.entity.DownloadState
 import machine7y.mapdownloader.domain.usecase.EnqueueDownloadUseCase
 import machine7y.mapdownloader.domain.usecase.EnqueueDownloadUseCaseParam
 import machine7y.mapdownloader.domain.usecase.GetRegionUseCase
@@ -16,6 +17,7 @@ import machine7y.mapdownloader.presentation.entity.RegionUiItem
 import machine7y.mapdownloader.presentation.navigation.Router
 import machine7y.mapdownloader.presentation.screen.Screen
 import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnItemClicked
+import machine7y.mapdownloader.presentation.screen.country.CountryLabel.ShowDownloadFailed
 import machine7y.mapdownloader.presentation.screen.country.CountryLabel.ShowNoNestedRegionsMessage
 import machine7y.mapdownloader.presentation.screen.country.CountryLabel.ShowRegionNotFound
 import machine7y.mapdownloader.presentation.screen.country.mapper.CountryRegionUiMapper
@@ -85,11 +87,22 @@ class CountryViewModel @AssistedInject constructor(
 
         if (fileIds.isEmpty()) return@launch
 
+        var previousStates = emptyMap<String, DownloadState>()
+
         observeDownloadStatesUseCase(ObserveDownloadStatesUseCaseParam(fileIds)).collect { downloadStates ->
+            val hasNewFailure = downloadStates.any { (fileId, downloadState) ->
+                downloadState == DownloadState.Failed && previousStates[fileId] != DownloadState.Failed
+            }
+            previousStates = downloadStates
+
             updateUiState {
                 copy(
                     downloadStates = downloadStates,
                 )
+            }
+
+            if (hasNewFailure) {
+                publishLabel(ShowDownloadFailed)
             }
         }
     }

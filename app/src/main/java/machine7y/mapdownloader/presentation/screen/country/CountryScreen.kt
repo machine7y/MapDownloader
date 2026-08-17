@@ -51,7 +51,6 @@ import machine7y.mapdownloader.presentation.theme.Black
 import machine7y.mapdownloader.presentation.theme.Gray
 import machine7y.mapdownloader.presentation.theme.Gray3
 import machine7y.mapdownloader.presentation.theme.OrangeLight
-import machine7y.mapdownloader.presentation.theme.Red
 import machine7y.mapdownloader.presentation.theme.White
 
 @Composable
@@ -66,6 +65,7 @@ fun CountryScreen(
     val context = LocalContext.current
     val noNestedRegionsToastText = stringResource(R.string.countryList_toastNoNestedRegions)
     val regionNotFoundToastText = stringResource(R.string.countryList_regionNotFound)
+    val downloadFailedToastText = stringResource(R.string.countryScreen_downloadFailed)
 
     LaunchedEffect(Unit) {
         viewModel.labelFlow.collect { label ->
@@ -74,6 +74,8 @@ fun CountryScreen(
                     Toast.makeText(context, noNestedRegionsToastText, Toast.LENGTH_SHORT).show()
                 CountryLabel.ShowRegionNotFound ->
                     Toast.makeText(context, regionNotFoundToastText, Toast.LENGTH_SHORT).show()
+                CountryLabel.ShowDownloadFailed ->
+                    Toast.makeText(context, downloadFailedToastText, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -216,13 +218,6 @@ private fun RegionItem(
                             modifier = Modifier
                                 .padding(top = 6.dp)
                                 .height(3.dp),
-                        )
-                    }
-                    if (downloadState == DownloadState.Failed) {
-                        Text(
-                            text = stringResource(R.string.countryScreen_downloadFailed),
-                            fontSize = 13.sp,
-                            color = Red,
                         )
                     }
                 }
