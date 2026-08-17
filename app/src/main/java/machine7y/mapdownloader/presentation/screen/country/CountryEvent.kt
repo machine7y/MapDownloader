@@ -6,7 +6,7 @@ sealed interface CountryEvent : BaseEvent {
 
     data object OnBackClicked : CountryEvent
 
-    data class OnRegionClicked(
+    data class OnItemClicked(
         val localRegionId: Int,
         val name: String,
         val downloadName: String,

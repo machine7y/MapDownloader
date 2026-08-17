@@ -30,6 +30,10 @@ class DownloadEngine @Inject constructor(
 
     fun getTargetFile(fileId: String): File = File(dir, getTargetFileName(fileId))
 
+    fun deleteTargetFile(fileId: String) {
+        getTargetFile(fileId).delete()
+    }
+
     fun cleanParts() {
         dir.listFiles { file -> file.name.endsWith(PART_SUFFIX) }?.forEach { it.delete() }
     }

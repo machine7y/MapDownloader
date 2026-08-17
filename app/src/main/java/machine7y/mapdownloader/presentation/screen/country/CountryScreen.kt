@@ -1,6 +1,5 @@
 package machine7y.mapdownloader.presentation.screen.country
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,16 +40,18 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import machine7y.mapdownloader.R
 import machine7y.mapdownloader.domain.entity.DownloadState
+import machine7y.mapdownloader.presentation.component.ProgressBar
 import machine7y.mapdownloader.presentation.component.StatusBarBackground
 import machine7y.mapdownloader.presentation.entity.RegionUiItem.CountryUiItem
 import machine7y.mapdownloader.presentation.modifier.bottomShadow
 import machine7y.mapdownloader.presentation.modifier.topShadow
 import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnBackClicked
-import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnRegionClicked
+import machine7y.mapdownloader.presentation.screen.country.CountryEvent.OnItemClicked
 import machine7y.mapdownloader.presentation.theme.Black
 import machine7y.mapdownloader.presentation.theme.Gray2
 import machine7y.mapdownloader.presentation.theme.Gray4
 import machine7y.mapdownloader.presentation.theme.OrangeLight
+import machine7y.mapdownloader.presentation.theme.Red
 import machine7y.mapdownloader.presentation.theme.White
 
 @Composable
@@ -77,9 +78,9 @@ fun CountryScreen(
     CountryContent(
         state = state,
         onBackClicked = { viewModel.onEvent(OnBackClicked) },
-        onRegionClicked = { item ->
+        onItemClicked = { item ->
             viewModel.onEvent(
-                OnRegionClicked(
+                OnItemClicked(
                     localRegionId = item.localRegionId,
                     name = item.name,
                     downloadName = item.downloadName,
@@ -96,7 +97,7 @@ fun CountryScreen(
 private fun CountryContent(
     state: CountryState,
     onBackClicked: () -> Unit,
-    onRegionClicked: (item: CountryUiItem) -> Unit,
+    onItemClicked: (item: CountryUiItem) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -127,9 +128,8 @@ private fun CountryContent(
         }
     ) { innerPadding ->
         RegionList(
-            itemList = state.regionList,
-            downloadStates = state.downloadStates,
-            onRegionClicked = onRegionClicked,
+            state = state,
+            onItemClicked = onItemClicked,
             modifier = Modifier
                 .padding(innerPadding)
                 .background(Gray2),
@@ -140,12 +140,10 @@ private fun CountryContent(
 
 @Composable
 private fun RegionList(
-    itemList: List<CountryUiItem>,
-    downloadStates: Map<String, DownloadState>,
-    onRegionClicked: (item: CountryUiItem) -> Unit,
+    state: CountryState,
+    onItemClicked: (item: CountryUiItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Log.d("qweqwe", "RegionList: ${downloadStates}")
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -153,32 +151,34 @@ private fun RegionList(
             .bottomShadow(4.dp),
     ) {
         itemsIndexed(
-            items = itemList,
+            items = state.regionList,
             key = { _, item -> item.name },
         ) { index, item ->
-            MapItem(
+            RegionItem(
                 item = item,
-                downloadState = downloadStates[item.downloadName],
-                isLast = index == itemList.lastIndex,
-                onRegionClicked = onRegionClicked,
+                downloadState = state.downloadStates[item.downloadName],
+                isDownloaded = item.isMap && state.isDownloadCompleted(item.downloadName),
+                isLast = index == state.regionList.lastIndex,
+                onItemClicked = onItemClicked,
             )
         }
     }
 }
 
 @Composable
-private fun MapItem(
+private fun RegionItem(
     item: CountryUiItem,
     downloadState: DownloadState?,
+    isDownloaded: Boolean,
     isLast: Boolean,
-    onRegionClicked: (item: CountryUiItem) -> Unit,
+    onItemClicked: (item: CountryUiItem) -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
             .background(White)
-            .clickable { onRegionClicked(item) },
+            .clickable { onItemClicked(item) },
     ) {
         Image(
             painter = painterResource(R.drawable.img_map),
@@ -196,15 +196,40 @@ private fun MapItem(
                 modifier = Modifier
                     .weight(1f)
             ) {
-                Text(
-                    text = mapItemName(item.name, downloadState),
-                    fontSize = 16.sp,
-                    letterSpacing = 0.02.em,
-                    color = Black,
+                Column(
                     modifier = Modifier
                         .weight(1f),
-                )
+                ) {
+                    Text(
+                        text = item.name,
+                        fontSize = 16.sp,
+                        letterSpacing = 0.02.em,
+                        color = Black,
+                    )
+                    val fraction = (downloadState as? DownloadState.InProgress)?.fraction
+                    if (fraction != null) {
+                        ProgressBar(
+                            fraction = fraction,
+                            modifier = Modifier
+                                .padding(top = 6.dp)
+                                .height(3.dp),
+                        )
+                    }
+                    if (downloadState == DownloadState.Failed) {
+                        Text(
+                            text = stringResource(R.string.countryScreen_downloadFailed),
+                            fontSize = 13.sp,
+                            color = Red,
+                        )
+                    }
+                }
                 when {
+                    isDownloaded -> Image(
+                        painter = painterResource(R.drawable.img_action_remove_dark),
+                        contentDescription = stringResource(R.string.countryList_descriptionRemove),
+                        modifier = Modifier
+                            .padding(16.dp),
+                    )
                     item.isMap -> Image(
                         painter = painterResource(R.drawable.img_action_import),
                         contentDescription = stringResource(R.string.countryList_descriptionMap),
@@ -228,12 +253,6 @@ private fun MapItem(
             }
         }
     }
-}
-
-@Composable
-private fun mapItemName(name: String, downloadState: DownloadState?): String {
-    val fraction = (downloadState as? DownloadState.InProgress)?.fraction ?: return name
-    return stringResource(R.string.countryScreen_mapNameWithProgress, name, (fraction * 100).toInt())
 }
 
 @Preview(showBackground = true)
@@ -267,6 +286,6 @@ fun Preview() {
             ),
         ),
         onBackClicked = { },
-        onRegionClicked = { },
+        onItemClicked = { },
     )
 }

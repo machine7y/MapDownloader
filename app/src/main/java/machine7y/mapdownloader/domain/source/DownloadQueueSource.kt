@@ -7,5 +7,7 @@ interface DownloadQueueSource {
 
     fun enqueue(fileId: String)
 
+    fun remove(fileId: String)
+
     fun observeAll(fileIds: Set<String>): Flow<Map<String, DownloadState>>
 }

@@ -8,4 +8,7 @@ data class CountryState(
     val name: String = "",
     val regionList: List<RegionUiItem.CountryUiItem> = emptyList(),
     val downloadStates: Map<String, DownloadState> = emptyMap(),
-) : BaseState
+) : BaseState {
+
+    fun isDownloadCompleted(downloadName: String): Boolean = downloadStates[downloadName] == DownloadState.Completed
+}

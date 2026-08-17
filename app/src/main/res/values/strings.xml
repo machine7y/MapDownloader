@@ -4,10 +4,11 @@
     <string name="countryList_title">Download Maps</string>
     <string name="countryList_deviceMemoryTitle">Device memory</string>
     <string name="countryList_deviceMemoryFreeLabel">Free %1$.1f Gb</string>
-    <string name="countryList_toastNoNestedRegions">Нет вложенных регионов</string>
+    <string name="countryList_toastNoNestedRegions">No nested regions</string>
     <string name="countryList_descriptionMap">map</string>
     <string name="countryList_descriptionImport">import</string>
+    <string name="countryList_descriptionRemove">remove</string>
 
-    <string name="countryScreen_descriptionBack">Назад</string>
-    <string name="countryScreen_mapNameWithProgress">%1$s — %2$d%%</string>
+    <string name="countryScreen_descriptionBack">Back</string>
+    <string name="countryScreen_downloadFailed">Download failed</string>
 </resources>
