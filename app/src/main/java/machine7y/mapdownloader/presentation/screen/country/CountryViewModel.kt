@@ -3,7 +3,7 @@ package machine7y.mapdownloader.presentation.screen.country
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import machine7y.mapdownloader.domain.entity.DownloadState
+import machine7y.mapdownloader.domain.entity.download.DownloadState
 import machine7y.mapdownloader.domain.usecase.EnqueueDownloadUseCase
 import machine7y.mapdownloader.domain.usecase.EnqueueDownloadUseCaseParam
 import machine7y.mapdownloader.domain.usecase.GetRegionUseCase
@@ -81,15 +81,14 @@ class CountryViewModel @AssistedInject constructor(
     }
 
     private fun observeDownloadStates(regionList: List<RegionUiItem.CountryUiItem>) = launch {
-        val fileIds = regionList.filter { it.isMap }
+        val fileIdSet = regionList.filter { it.isMap }
             .map { it.downloadName }
             .toSet()
-
-        if (fileIds.isEmpty()) return@launch
+        if (fileIdSet.isEmpty()) return@launch
 
         var previousStates = emptyMap<String, DownloadState>()
 
-        observeDownloadStatesUseCase(ObserveDownloadStatesUseCaseParam(fileIds)).collect { downloadStates ->
+        observeDownloadStatesUseCase(ObserveDownloadStatesUseCaseParam(fileIdSet)).collect { downloadStates ->
             val hasNewFailure = downloadStates.any { (fileId, downloadState) ->
                 downloadState == DownloadState.Failed && previousStates[fileId] != DownloadState.Failed
             }

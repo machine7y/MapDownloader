@@ -1,7 +1,7 @@
 package machine7y.mapdownloader.domain.source
 
 import kotlinx.coroutines.flow.Flow
-import machine7y.mapdownloader.domain.entity.DownloadState
+import machine7y.mapdownloader.domain.entity.download.DownloadState
 
 interface DownloadQueueSource {
 
@@ -9,5 +9,5 @@ interface DownloadQueueSource {
 
     fun remove(fileId: String)
 
-    fun observeAll(fileIds: Set<String>): Flow<Map<String, DownloadState>>
+    fun observeAll(fileIdSet: Set<String>): Flow<Map<String, DownloadState>>
 }

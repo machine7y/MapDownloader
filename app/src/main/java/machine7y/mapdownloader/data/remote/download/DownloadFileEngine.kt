@@ -7,9 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import machine7y.mapdownloader.data.remote.api.OsmandApi
+import machine7y.mapdownloader.domain.entity.download.EngineFileResult
 import retrofit2.HttpException
 import java.io.File
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,16 +19,14 @@ private const val FILE_NAME_SUFFIX = "_2.obf.zip"
 private const val PROGRESS_THROTTLE_MS = 250L
 private const val READ_BUFFER_SIZE = 8 * 1024
 
-enum class EngineResult { Success, Failed, Retriable }
-
 @Singleton
-class DownloadEngine @Inject constructor(
+class DownloadFileEngine @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val osmandApi: OsmandApi,
 ) {
     private val dir = File(context.filesDir, DOWNLOADS_DIR_NAME).apply { mkdirs() }
 
-    fun getTargetFile(fileId: String): File = File(dir, getTargetFileName(fileId))
+    fun getTargetFile(fileId: String) = File(dir, getTargetFileName(fileId))
 
     fun deleteTargetFile(fileId: String) {
         getTargetFile(fileId).delete()
@@ -41,7 +39,7 @@ class DownloadEngine @Inject constructor(
     suspend fun download(
         fileId: String,
         onProgress: (bytes: Long, total: Long) -> Unit,
-    ): EngineResult = withContext(Dispatchers.IO) {
+    ): EngineFileResult = withContext(Dispatchers.IO) {
         val partFile = getPartFile(fileId)
         val targetFile = getTargetFile(fileId)
 
@@ -73,26 +71,23 @@ class DownloadEngine @Inject constructor(
             }
 
             if (!partFile.renameTo(targetFile)){
-                EngineResult.Failed
+                EngineFileResult.Failed
             } else {
-                EngineResult.Success
+                EngineFileResult.Success
             }
         } catch (e: CancellationException) {
             partFile.delete()
             throw e
         } catch (_: HttpException) {
             partFile.delete()
-            EngineResult.Failed
-        } catch (_: IOException) {
-            partFile.delete()
-            EngineResult.Retriable
+            EngineFileResult.Failed
         } catch (_: Exception) {
             partFile.delete()
-            EngineResult.Failed
+            EngineFileResult.Failed
         }
     }
 
-    private fun getPartFile(fileId: String): File = File(dir, getTargetFileName(fileId) + PART_SUFFIX)
+    private fun getPartFile(fileId: String) = File(dir, getTargetFileName(fileId) + PART_SUFFIX)
 
     private fun getTargetFileName(fileId: String): String =
         sanitize(fileId).replaceFirstChar { it.uppercase() } + FILE_NAME_SUFFIX

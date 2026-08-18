@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import machine7y.mapdownloader.domain.entity.DownloadItem
-import machine7y.mapdownloader.domain.entity.DownloadItemStatus
+import machine7y.mapdownloader.domain.entity.download.DownloadItem
+import machine7y.mapdownloader.domain.entity.download.DownloadItemStatus
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,19 +13,29 @@ import javax.inject.Singleton
 class DownloadQueueStore @Inject constructor() {
 
     private val _queueFlow = MutableStateFlow<List<DownloadItem>>(emptyList())
-
     val queueFlow: StateFlow<List<DownloadItem>> = _queueFlow.asStateFlow()
 
     fun add(fileId: String) {
         _queueFlow.update { items ->
             val existing = items.firstOrNull { it.fileId == fileId }
             when {
-                existing == null -> items + DownloadItem(fileId)
-                existing.status == DownloadItemStatus.FAILED -> items.map {
-                    if (it.fileId == fileId) {
-                        DownloadItem(fileId)
-                    } else {
-                        it
+                existing == null -> {
+                    items +
+                        DownloadItem(
+                            fileId = fileId,
+                            status = DownloadItemStatus.PENDING,
+                        )
+                }
+                existing.status == DownloadItemStatus.FAILED -> {
+                    items.map {
+                        if (it.fileId == fileId) {
+                            DownloadItem(
+                                fileId = fileId,
+                                status = DownloadItemStatus.PENDING,
+                            )
+                        } else {
+                            it
+                        }
                     }
                 }
                 else -> items
@@ -34,12 +44,13 @@ class DownloadQueueStore @Inject constructor() {
     }
 
     fun takeNext(): DownloadItem? {
-        var claimed: DownloadItem? = null
+        var nextItem: DownloadItem? = null
+
         _queueFlow.update { items ->
             val nextDownloadItem = items.firstOrNull { it.status == DownloadItemStatus.PENDING } ?: return@update items
             val runningDownloadItem = nextDownloadItem.copy(status = DownloadItemStatus.RUNNING)
 
-            claimed = runningDownloadItem
+            nextItem = runningDownloadItem
 
             items.map {
                 if (it.fileId == nextDownloadItem.fileId) {
@@ -50,7 +61,7 @@ class DownloadQueueStore @Inject constructor() {
             }
         }
 
-        return claimed
+        return nextItem
     }
 
     fun remove(fileId: String) = _queueFlow.update { items ->

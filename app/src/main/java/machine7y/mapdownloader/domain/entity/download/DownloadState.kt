@@ -1,4 +1,4 @@
-package machine7y.mapdownloader.domain.entity
+package machine7y.mapdownloader.domain.entity.download
 
 sealed interface DownloadState {
 
@@ -10,6 +10,7 @@ sealed interface DownloadState {
         val bytesDownloaded: Long,
         val totalBytes: Long?,
     ) : DownloadState {
+
         val fraction: Float? = totalBytes
             ?.takeIf { it > 0 }
             ?.let { (bytesDownloaded.toFloat() / it).coerceIn(0f, 1f) }

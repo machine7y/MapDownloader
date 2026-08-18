@@ -2,7 +2,7 @@ package machine7y.mapdownloader.domain.usecase
 
 import kotlinx.coroutines.flow.Flow
 import machine7y.mapdownloader.domain.base.usecase.BaseParamsFlowUseCase
-import machine7y.mapdownloader.domain.entity.DownloadState
+import machine7y.mapdownloader.domain.entity.download.DownloadState
 import machine7y.mapdownloader.domain.source.DownloadQueueSource
 import javax.inject.Inject
 

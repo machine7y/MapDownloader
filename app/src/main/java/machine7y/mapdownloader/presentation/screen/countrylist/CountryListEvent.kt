@@ -8,4 +8,6 @@ sealed interface CountryListEvent : BaseEvent {
         val localRegionId: Int,
         val hasChildren: Boolean,
     ) : CountryListEvent
+
+    data object OnScreenOpened : CountryListEvent
 }

@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import machine7y.mapdownloader.R
-import machine7y.mapdownloader.domain.entity.DownloadState
+import machine7y.mapdownloader.domain.entity.download.DownloadState
 import machine7y.mapdownloader.presentation.component.ProgressBar
 import machine7y.mapdownloader.presentation.component.StatusBarBackground
 import machine7y.mapdownloader.presentation.entity.RegionUiItem.CountryUiItem
@@ -64,7 +64,7 @@ fun CountryScreen(
     val state by viewModel.stateFlow.collectAsState()
     val context = LocalContext.current
     val noNestedRegionsToastText = stringResource(R.string.countryList_toastNoNestedRegions)
-    val regionNotFoundToastText = stringResource(R.string.countryList_regionNotFound)
+    val regionNotFoundToastText = stringResource(R.string.countryScreen_regionNotFound)
     val downloadFailedToastText = stringResource(R.string.countryScreen_downloadFailed)
 
     LaunchedEffect(Unit) {

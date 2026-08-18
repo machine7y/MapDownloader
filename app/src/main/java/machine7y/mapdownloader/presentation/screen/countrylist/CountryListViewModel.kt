@@ -7,6 +7,7 @@ import machine7y.mapdownloader.presentation.base.mvvm.BaseViewModel
 import machine7y.mapdownloader.presentation.navigation.Router
 import machine7y.mapdownloader.presentation.screen.Screen
 import machine7y.mapdownloader.presentation.screen.countrylist.CountryListEvent.OnCountryClicked
+import machine7y.mapdownloader.presentation.screen.countrylist.CountryListEvent.OnScreenOpened
 import machine7y.mapdownloader.presentation.screen.countrylist.CountryListLabel.ShowNoNestedRegionsMessage
 import machine7y.mapdownloader.presentation.screen.countrylist.mapper.MemoryUiMapper
 import machine7y.mapdownloader.presentation.screen.countrylist.mapper.RegionUiMapper
@@ -24,13 +25,13 @@ class CountryListViewModel @Inject constructor(
     initialInternalState = CountryListInternalState(),
 ) {
     init {
-        loadMemoryState()
         loadRegionList()
     }
 
     override fun onEvent(event: CountryListEvent) {
         when (event) {
             is OnCountryClicked -> onCountryClicked(event)
+            OnScreenOpened -> loadMemoryState()
         }
     }
 

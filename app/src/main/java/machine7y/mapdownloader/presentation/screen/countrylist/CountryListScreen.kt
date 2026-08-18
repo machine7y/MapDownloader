@@ -63,6 +63,9 @@ fun CountryListScreen() {
     val noNestedRegionsToastText = stringResource(R.string.countryList_toastNoNestedRegions)
 
     LaunchedEffect(Unit) {
+        viewModel.onEvent(CountryListEvent.OnScreenOpened)
+    }
+    LaunchedEffect(Unit) {
         viewModel.labelFlow.collect { label ->
             when (label) {
                 CountryListLabel.ShowNoNestedRegionsMessage ->

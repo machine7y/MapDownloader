@@ -1,4 +1,4 @@
-package machine7y.mapdownloader.domain.entity
+package machine7y.mapdownloader.domain.entity.download
 
 data class DownloadProgress(
     val bytes: Long,
