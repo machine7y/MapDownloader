@@ -1,10 +1,10 @@
 package machine7y.mapdownloader.data.remote.download
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import machine7y.mapdownloader.core.dispatchers.DispatcherProvider
 import machine7y.mapdownloader.domain.entity.download.EngineFileResult
 import machine7y.mapdownloader.domain.source.InternalMemorySource
 import javax.inject.Inject
@@ -14,12 +14,13 @@ private const val MAX_ATTEMPTS = 3
 
 @Singleton
 class DownloadDrainer @Inject constructor(
+    dispatcherProvider: DispatcherProvider,
     private val downloadQueueStore: DownloadQueueStore,
     private val downloadFileEngine: DownloadFileEngine,
     private val downloadProgressBus: DownloadProgressBus,
     private val internalMemorySource: InternalMemorySource,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default)
     private val drainMutex = Mutex()
 
     fun ensureRunning() {

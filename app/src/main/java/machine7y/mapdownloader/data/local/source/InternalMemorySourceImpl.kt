@@ -3,8 +3,8 @@ package machine7y.mapdownloader.data.local.source
 import android.content.Context
 import android.os.storage.StorageManager
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import machine7y.mapdownloader.core.dispatchers.DispatcherProvider
 import machine7y.mapdownloader.core.utils.atLeastO
 import machine7y.mapdownloader.domain.entity.Memory
 import machine7y.mapdownloader.domain.source.InternalMemorySource
@@ -14,12 +14,13 @@ import javax.inject.Inject
 
 class InternalMemorySourceImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    private val dispatcherProvider: DispatcherProvider,
 ) : InternalMemorySource {
 
     private val storageManager: StorageManager? =
         context.getSystemService(StorageManager::class.java)
 
-    override suspend fun getMemory(): Memory = withContext(Dispatchers.IO) {
+    override suspend fun getMemory(): Memory = withContext(dispatcherProvider.io) {
         val dir =  context.filesDir
         val totalBytes = dir.totalSpace
         val freeBytes = allocatableBytes(dir) ?: dir.usableSpace
@@ -27,7 +28,7 @@ class InternalMemorySourceImpl @Inject constructor(
         buildMemory(totalBytes = totalBytes, freeBytes = freeBytes)
     }
 
-    override suspend fun clearCache(): Unit = withContext(Dispatchers.IO) {
+    override suspend fun clearCache(): Unit = withContext(dispatcherProvider.io) {
         val sm = storageManager
         if (sm == null || !atLeastO()) {
             context.cacheDir?.listFiles()?.forEach { it.deleteRecursively() }
@@ -59,6 +60,7 @@ class InternalMemorySourceImpl @Inject constructor(
         } else {
             ((totalBytes - freeBytes).toFloat() / totalBytes).coerceIn(0f, 1f)
         }
+
         return Memory(
             freeBytes = freeBytes,
             totalBytes = totalBytes,

@@ -3,9 +3,9 @@ package machine7y.mapdownloader.data.remote.download
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import machine7y.mapdownloader.core.dispatchers.DispatcherProvider
 import machine7y.mapdownloader.data.remote.api.OsmandApi
 import machine7y.mapdownloader.domain.entity.download.EngineFileResult
 import retrofit2.HttpException
@@ -23,6 +23,7 @@ private const val READ_BUFFER_SIZE = 8 * 1024
 class DownloadFileEngine @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val osmandApi: OsmandApi,
+    private val dispatcherProvider: DispatcherProvider,
 ) {
     private val dir = File(context.filesDir, DOWNLOADS_DIR_NAME).apply { mkdirs() }
 
@@ -39,7 +40,7 @@ class DownloadFileEngine @Inject constructor(
     suspend fun download(
         fileId: String,
         onProgress: (bytes: Long, total: Long) -> Unit,
-    ): EngineFileResult = withContext(Dispatchers.IO) {
+    ): EngineFileResult = withContext(dispatcherProvider.io) {
         val partFile = getPartFile(fileId)
         val targetFile = getTargetFile(fileId)
 
